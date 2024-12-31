@@ -27,7 +27,6 @@
                             <th>Urgência</th>
                             <th>Data</th>
                             <th>Status</th>
-                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -40,12 +39,6 @@
                             <td>{{ item.urgency }}</td>
                             <td>{{ item.date }}</td>
                             <td>{{ item.status }}</td> <!-- Status exibido como texto fixo -->
-                            <td>
-                                <form method="POST" action="/delete">
-                                    <input type="hidden" name="item_id" value="{{ loop.index }}">
-                                    <button class="delete-button">Excluir</button>
-                                </form>
-                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
