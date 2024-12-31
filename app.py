@@ -3,6 +3,7 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import sqlite3
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
