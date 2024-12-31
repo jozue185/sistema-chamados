@@ -46,12 +46,12 @@
                                         <option value="Andamento" {% if item.status == "Andamento" %}selected{% endif %}>Andamento</option>
                                         <option value="Entregue" {% if item.status == "Entregue" %}selected{% endif %}>Entregue</option>
                                     </select>
-                                    <input type="hidden" name="item_id" value="{{ loop.index }}">
+                                    <input type="hidden" name="item_id" value="{{ item._id }}">
                                 </form>
                             </td>
                             <td>
                                 <form method="POST" action="/delete">
-                                    <input type="hidden" name="item_id" value="{{ loop.index }}">
+                                    <input type="hidden" name="item_id" value="{{ item._id }}">
                                     <button class="delete-button">Excluir</button>
                                 </form>
                             </td>
@@ -59,6 +59,13 @@
                         {% endfor %}
                     </tbody>
                 </table>
+
+                <!-- Formulário para adicionar ou salvar a tabela no TXT -->
+                <div class="save-data">
+                    <form method="POST" action="/save-data">
+                        <button type="submit" class="button save">Salvar no TXT</button>
+                    </form>
+                </div>
             </div>
 
             <!-- Container do Gráfico -->
