@@ -57,26 +57,27 @@ def dashboard():
 
         # Inicializa lista de dados
         data = []
-        if os.path.exists(DATA_FILE):
-            with open(DATA_FILE, "r") as f:
+        try:
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
                 for line in f:
-                    try:
-                        parts = line.strip().split("|")
-                        if len(parts) < 6:
-                            print(f"Formato inválido na linha: {line}")
-                            continue
-                        data.append({
-                            "nome": parts[0].split(":")[1].strip(),
-                            "department": parts[1].split(":")[1].strip(),
-                            "email": parts[2].split(":")[1].strip(),
-                            "description": parts[3].split(":")[1].strip(),
-                            "urgency": parts[4].split(":")[1].strip(),
-                            "date": parts[5].split(":")[1].strip(),
-                            "status": parts[6].split(":")[1].strip() if len(parts) > 6 else "Desconhecido",
-                        })
-                    except IndexError as e:
-                        print(f"Erro ao processar linha: {line} - {e}")
+                    print(line.strip())  # Depuração: imprime cada linha
+                    parts = line.strip().split("|")
+                    if len(parts) < 6:
+                        print(f"Formato inválido na linha: {line}")
                         continue
+                    data.append({
+                        "nome": parts[0].split(":")[1].strip(),
+                        "department": parts[1].split(":")[1].strip(),
+                        "email": parts[2].split(":")[1].strip(),
+                        "description": parts[3].split(":")[1].strip(),
+                        "urgency": parts[4].split(":")[1].strip(),
+                        "date": parts[5].split(":")[1].strip(),
+                        "status": parts[6].split(":")[1].strip() if len(parts) > 6 else "Desconhecido",
+                    })
+        except UnicodeDecodeError as e:
+            print(f"Erro de codificação: {e}")
+            flash("Erro ao processar o arquivo. Verifique a codificação.", "danger")
+            return redirect(url_for("form"))
 
         # Categorizar os pedidos
         not_started = len([item for item in data if item["status"] == "Não Iniciado"])
@@ -95,7 +96,6 @@ def dashboard():
         print(f"Erro no dashboard: {e}")  # Log no console
         flash("Ocorreu um erro ao carregar o dashboard.", "danger")
         return redirect(url_for("form"))
-
 
 #Deletar Pedido
 @app.route("/update-status", methods=["POST"])
