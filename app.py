@@ -5,6 +5,13 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import sqlite3
 
+print("Iniciando aplicação... Verificando sqlite3...")
+try:
+    import sqlite3
+    print("sqlite3 está disponível!")
+except ImportError as e:
+    print(f"Erro ao importar sqlite3: {e}")
+
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
