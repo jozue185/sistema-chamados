@@ -181,7 +181,7 @@ def send_email():
 
         # Salvar os dados no arquivo com tratamento
         with open(DATA_FILE, "a", encoding="utf-8") as f:
-            f.write(f"Nome: {nome} | Departamento: {department} | Email: {email} | Descrição: {description} | Urgência: {urgency} | Data: {delivery_date}\n")
+            f.write(f"Nome: {nome} | Departamento: {department} | Email: {email} | Descricao: {description} | Urgencia: {urgency} | Data: {delivery_date}\n")
 
         # Configuração do envio de email (se necessário)
         sender_email = "analytics@smartfit.com"  # Seu email
@@ -195,8 +195,8 @@ def send_email():
         Nome: {nome}
         Departamento: {department}
         Email: {email}
-        Descrição: {description}
-        Urgência: {urgency}
+        Descricao: {description}
+        Urgencia: {urgency}
         Data de entrega: {delivery_date}
         """
 
