@@ -55,36 +55,18 @@ def dashboard():
             flash("Acesso negado. Apenas administradores podem acessar o dashboard.", "danger")
             return redirect(url_for("form"))
 
-        # Inicializa lista de dados
-        data = []
-        try:
-            with open(DATA_FILE, "r", encoding="utf-8", errors="replace") as f:
-                for line in f:
-                    line = remover_acentos(line.strip())  # Remove acentos
-                    parts = line.split("|")
-                    if len(parts) < 6:
-                        print(f"Formato inválido na linha: {line}")
-                        continue
-                    data.append({
-                        "nome": parts[0].split(":")[1].strip(),
-                        "department": parts[1].split(":")[1].strip(),
-                        "email": parts[2].split(":")[1].strip(),
-                        "description": parts[3].split(":")[1].strip(),
-                        "urgency": parts[4].split(":")[1].strip(),
-                        "date": parts[5].split(":")[1].strip(),
-                        "status": parts[6].split(":")[1].strip() if len(parts) > 6 else "Desconhecido",
-                    })
-        except UnicodeDecodeError as e:
-            print(f"Erro de codificação: {e}")
-            flash("Erro ao processar o arquivo. Verifique a codificação.", "danger")
-            return redirect(url_for("form"))
+        # Buscar dados do banco de dados
+        conn = sqlite3.connect("data.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM chamados")
+        data = cursor.fetchall()  # Lista de tuplas com os chamados
+        conn.close()
 
         # Categorizar os pedidos
-        not_started = len([item for item in data if item["status"] == "Não Iniciado"])
-        in_progress = len([item for item in data if item["status"] == "Andamento"])
-        completed = len([item for item in data if item["status"] == "Entregue"])
+        not_started = len([item for item in data if item[7] == "Não Iniciado"])
+        in_progress = len([item for item in data if item[7] == "Andamento"])
+        completed = len([item for item in data if item[7] == "Entregue"])
 
-        # Renderiza o template
         return render_template(
             "dashboard.html",
             data=data,
@@ -93,9 +75,10 @@ def dashboard():
             completed_count=completed
         )
     except Exception as e:
-        print(f"Erro no dashboard: {e}")  # Log no console
-        flash("Ocorreu um erro ao carregar o dashboard.", "danger")
+        print(f"Erro no dashboard: {e}")
+        flash("Erro ao carregar os dados do banco.", "danger")
         return redirect(url_for("form"))
+
 
 #Deletar Pedido
 @app.route("/update-status", methods=["POST"])
@@ -167,63 +150,34 @@ def remover_acentos(texto):
         c for c in unicodedata.normalize('NFD', texto)
         if unicodedata.category(c) != 'Mn'
     )
-
+#Enviar o Email
 @app.route("/send-email", methods=["POST"])
 def send_email():
     try:
         # Capturar os dados do formulário
-        nome = remover_acentos(request.form["nome"])
-        department = remover_acentos(request.form["department"])
-        email = remover_acentos(request.form["email"])
-        delivery_date = remover_acentos(request.form["delivery_date"])
-        description = remover_acentos(request.form["description"])
-        urgency = remover_acentos(request.form["urgency"])
+        nome = request.form["nome"]
+        department = request.form["department"]
+        email = request.form["email"]
+        delivery_date = request.form["delivery_date"]
+        description = request.form["description"]
+        urgency = request.form["urgency"]
 
-        # Salvar os dados no arquivo com tratamento
-        with open(DATA_FILE, "a", encoding="utf-8") as f:
-            f.write(f"Nome: {nome} | Departamento: {department} | Email: {email} | Descricao: {description} | Urgencia: {urgency} | Data: {delivery_date}\n")
+        # Salvar os dados no banco de dados
+        conn = sqlite3.connect("data.db")
+        cursor = conn.cursor()
+        cursor.execute("""
+        INSERT INTO chamados (nome, departamento, email, descricao, urgencia, data, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (nome, department, email, description, urgency, delivery_date, "Não Iniciado"))
+        conn.commit()
+        conn.close()
 
-        # Configuração do envio de email (se necessário)
-        sender_email = "analytics@smartfit.com"  # Seu email
-        sender_password = "mbgr lrrx qtfk zpho"  # Senha do aplicativo
-        recipients = ["karent.rivera@smartfit.com", "josue.domingues@smartfit.com", "gustavo.trabulsi@smartfit.com"]
-
-        subject = f"Novo Chamado: {department}"
-        body = f"""
-        Novo chamado registrado:
-
-        Nome: {nome}
-        Departamento: {department}
-        Email: {email}
-        Descricao: {description}
-        Urgencia: {urgency}
-        Data de entrega: {delivery_date}
-        """
-
-        # Criar o email
-        msg = MIMEMultipart()
-        msg["From"] = sender_email
-        msg["To"] = ", ".join(recipients)
-        msg["Subject"] = subject
-        msg.attach(MIMEText(body, "plain"))
-
-        # Conectar ao servidor SMTP e enviar o email
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            server.login(sender_email, sender_password)
-            server.send_message(msg)
-            print("Email enviado com sucesso!")
-
-        # Mensagem de sucesso
-        flash("Solicitação enviada com sucesso e email enviado!", "success")
+        flash("Solicitação enviada com sucesso e salva no banco de dados!", "success")
         return redirect(url_for("form"))
-
     except Exception as e:
-        # Mensagem de erro
         print(f"Erro ao processar a solicitação: {e}")
-        flash(f"Erro ao processar a solicitação: {e}", "danger")
+        flash("Erro ao salvar os dados no banco de dados.", "danger")
         return redirect(url_for("form"))
-
 
 # Rota para logout
 @app.route("/logout")
