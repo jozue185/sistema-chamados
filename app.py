@@ -58,10 +58,10 @@ def dashboard():
         # Inicializa lista de dados
         data = []
         try:
-            with open(DATA_FILE, "r", encoding="utf-8") as f:
+            with open(DATA_FILE, "r", encoding="utf-8", errors="replace") as f:
                 for line in f:
-                    print(line.strip())  # Depuração: imprime cada linha
-                    parts = line.strip().split("|")
+                    line = remover_acentos(line.strip())  # Remove acentos
+                    parts = line.split("|")
                     if len(parts) < 6:
                         print(f"Formato inválido na linha: {line}")
                         continue
