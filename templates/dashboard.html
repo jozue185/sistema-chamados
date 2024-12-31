@@ -13,50 +13,48 @@
         <!-- Título -->
         <h1>Dashboard de Solicitações</h1>
 
-        <div class="dashboard-content">
-            <!-- Container da Tabela -->
-            <div class="table-container">
-                <h2>Pedidos Abertos</h2>
-                <table class="dashboard-table">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Departamento</th>
-                            <th>Email</th>
-                            <th>Descrição</th>
-                            <th>Urgência</th>
-                            <th>Data</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in data %}
-                        <tr>
-                            <td>{{ item.nome }}</td>
-                            <td>{{ item.department }}</td>
-                            <td>{{ item.email }}</td>
-                            <td>{{ item.description }}</td>
-                            <td>{{ item.urgency }}</td>
-                            <td>{{ item.date }}</td>
-                            <td>{{ item.status }}</td> <!-- Status fixo -->
-                            <td>
-                                <form method="POST" action="/delete">
-                                    <input type="hidden" name="item_id" value="{{ item._id }}">
-                                    <button class="delete-button">Excluir</button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <!-- Container da Tabela -->
+        <div class="table-container">
+            <h2>Pedidos Abertos</h2>
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Departamento</th>
+                        <th>Email</th>
+                        <th>Descrição</th>
+                        <th>Urgência</th>
+                        <th>Data</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr>
+                        <td>{{ item.nome }}</td>
+                        <td>{{ item.department }}</td>
+                        <td>{{ item.email }}</td>
+                        <td>{{ item.description }}</td>
+                        <td>{{ item.urgency }}</td>
+                        <td>{{ item.date }}</td>
+                        <td>{{ item.status }}</td> <!-- Status fixo -->
+                        <td>
+                            <form method="POST" action="/delete">
+                                <input type="hidden" name="item_id" value="{{ item._id }}">
+                                <button class="delete-button">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-            <!-- Container do Gráfico -->
-            <div class="chart-container">
-                <h2>Status dos Pedidos</h2>
-                <canvas id="statusChart"></canvas>
-            </div>
+        <!-- Container do Gráfico -->
+        <div class="chart-container">
+            <h2>Status dos Pedidos</h2>
+            <canvas id="statusChart"></canvas>
         </div>
 
         <!-- Botões de Navegação -->
