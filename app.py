@@ -46,6 +46,7 @@ def login():
 
 #rota para o dashboard
 @app.route("/dashboard")
+@app.route("/dashboard")
 def dashboard():
     try:
         # Verificar se o usuário está logado
@@ -58,18 +59,33 @@ def dashboard():
             flash("Acesso negado. Apenas administradores podem acessar o dashboard.", "danger")
             return redirect(url_for("form"))
 
-        # Conectar ao banco e buscar dados
-        conn = sqlite3.connect("data.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM chamados")
-        data = cursor.fetchall()
-        conn.close()
+        # Carregar os dados do arquivo
+        data = []
+        if os.path.exists(DATA_FILE):
+            with open(DATA_FILE, "r", encoding="utf-8") as f:
+                for line in f:
+                    try:
+                        # Dividir os campos do TXT
+                        parts = line.strip().split("|")
+                        data.append({
+                            "nome": parts[0].split(":")[1].strip(),
+                            "department": parts[1].split(":")[1].strip(),
+                            "email": parts[2].split(":")[1].strip(),
+                            "description": parts[3].split(":")[1].strip(),
+                            "urgency": parts[4].split(":")[1].strip(),
+                            "date": parts[5].split(":")[1].strip(),
+                            "status": parts[6].split(":")[1].strip(),
+                        })
+                    except IndexError as e:
+                        print(f"Erro ao processar linha: {line} - {e}")
+                        continue
 
         # Categorizar os pedidos
-        not_started = len([item for item in data if item[7] == "Não Iniciado"])
-        in_progress = len([item for item in data if item[7] == "Andamento"])
-        completed = len([item for item in data if item[7] == "Entregue"])
+        not_started = len([item for item in data if item["status"] == "Não Iniciado"])
+        in_progress = len([item for item in data if item["status"] == "Andamento"])
+        completed = len([item for item in data if item["status"] == "Entregue"])
 
+        # Renderizar o template com os dados
         return render_template(
             "dashboard.html",
             data=data,
