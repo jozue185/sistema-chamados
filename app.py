@@ -27,7 +27,7 @@ dados = [
         "description": "Revisar políticas",
         "urgency": "Média",
         "date": "2024-11-30",
-        "status": "Em Andamento",
+        "status": "Andamento",
     },
     {
         "nome": "João",
