@@ -21,6 +21,15 @@ dados = [
         "status": "Entregue",
     },
     {
+        "nome": "Rafaela",
+        "department": "Mídias",
+        "email": "Rafaela@smartfit.com",
+        "description": "Revisar políticas",
+        "urgency": "Média",
+        "date": "2024-01-02",
+        "status": "Não Iniciado",
+    },
+    {
         "nome": "Maria",
         "department": "RH",
         "email": "maria@example.com",
