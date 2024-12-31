@@ -39,16 +39,7 @@
                             <td>{{ item.description }}</td>
                             <td>{{ item.urgency }}</td>
                             <td>{{ item.date }}</td>
-                            <td>
-                                <form method="POST" action="/update-status">
-                                    <select name="status" onchange="this.form.submit()">
-                                        <option value="Não Iniciado" {% if item.status == "Não Iniciado" %}selected{% endif %}>Não Iniciado</option>
-                                        <option value="Andamento" {% if item.status == "Andamento" %}selected{% endif %}>Andamento</option>
-                                        <option value="Entregue" {% if item.status == "Entregue" %}selected{% endif %}>Entregue</option>
-                                    </select>
-                                    <input type="hidden" name="item_id" value="{{ item._id }}">
-                                </form>
-                            </td>
+                            <td>{{ item.status }}</td> <!-- Status fixo -->
                             <td>
                                 <form method="POST" action="/delete">
                                     <input type="hidden" name="item_id" value="{{ item._id }}">
