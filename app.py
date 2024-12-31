@@ -155,26 +155,38 @@ def form():
 
     return render_template("form.html", user_name=user_name)
 
-# Rota para processar o envio do formulário
+import unicodedata
+
+def remover_acentos(texto):
+    """
+    Remove acentos e caracteres especiais de uma string.
+    """
+    if not isinstance(texto, str):
+        return texto
+    return ''.join(
+        c for c in unicodedata.normalize('NFD', texto)
+        if unicodedata.category(c) != 'Mn'
+    )
+
 @app.route("/send-email", methods=["POST"])
 def send_email():
     try:
         # Capturar os dados do formulário
-        nome = request.form["nome"]
-        department = request.form["department"]
-        email = request.form["email"]
-        delivery_date = request.form["delivery_date"]
-        description = request.form["description"]
-        urgency = request.form["urgency"]
+        nome = remover_acentos(request.form["nome"])
+        department = remover_acentos(request.form["department"])
+        email = remover_acentos(request.form["email"])
+        delivery_date = remover_acentos(request.form["delivery_date"])
+        description = remover_acentos(request.form["description"])
+        urgency = remover_acentos(request.form["urgency"])
 
-        # Salvar os dados no arquivo
-        with open(DATA_FILE, "a") as f:
+        # Salvar os dados no arquivo com tratamento
+        with open(DATA_FILE, "a", encoding="utf-8") as f:
             f.write(f"Nome: {nome} | Departamento: {department} | Email: {email} | Descrição: {description} | Urgência: {urgency} | Data: {delivery_date}\n")
 
-        # Configuração do envio de email
+        # Configuração do envio de email (se necessário)
         sender_email = "analytics@smartfit.com"  # Seu email
         sender_password = "mbgr lrrx qtfk zpho"  # Senha do aplicativo
-        recipients = ["karent.rivera@smartfit.com", "josue.domingues@smartfit.com", "gustavo.trabulsi@smartfit.com"]  # Destinatários
+        recipients = ["karent.rivera@smartfit.com", "josue.domingues@smartfit.com", "gustavo.trabulsi@smartfit.com"]
 
         subject = f"Novo Chamado: {department}"
         body = f"""
@@ -208,6 +220,7 @@ def send_email():
 
     except Exception as e:
         # Mensagem de erro
+        print(f"Erro ao processar a solicitação: {e}")
         flash(f"Erro ao processar a solicitação: {e}", "danger")
         return redirect(url_for("form"))
 
