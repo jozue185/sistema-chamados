@@ -97,26 +97,44 @@ def dashboard():
 # Rota para atualizar o status
 @app.route("/update-status", methods=["POST"])
 def update_status():
-    item_id = int(request.form["item_id"])
-    new_status = request.form["status"]
+    try:
+        # Capturar o ID e o novo status do formulário
+        item_id = int(request.form["item_id"])
+        new_status = request.form["status"]
 
-    # Atualizar o status do item
-    if 0 <= item_id < len(dados):
-        dados[item_id]["status"] = new_status
+        # Validar se o índice está dentro do intervalo
+        if 0 <= item_id < len(dados):
+            dados[item_id]["status"] = new_status
+            flash("Status atualizado com sucesso!", "success")
+        else:
+            flash("Item inválido.", "danger")
 
-    flash("Status atualizado com sucesso!", "success")
+    except ValueError as ve:
+        flash(f"Erro ao processar o ID: {ve}", "danger")
+    except Exception as e:
+        flash(f"Erro inesperado: {e}", "danger")
+
     return redirect(url_for("dashboard"))
 
 # Rota para deletar um item
 @app.route("/delete", methods=["POST"])
 def delete_item():
-    item_id = int(request.form["item_id"])
+    try:
+        # Capturar o ID do item a ser deletado
+        item_id = int(request.form["item_id"])
 
-    # Remover o item correspondente
-    if 0 <= item_id < len(dados):
-        dados.pop(item_id)
+        # Validar se o índice está dentro do intervalo
+        if 0 <= item_id < len(dados):
+            dados.pop(item_id)
+            flash("Pedido excluído com sucesso!", "success")
+        else:
+            flash("Item inválido.", "danger")
 
-    flash("Pedido excluído com sucesso!", "success")
+    except ValueError as ve:
+        flash(f"Erro ao processar o ID: {ve}", "danger")
+    except Exception as e:
+        flash(f"Erro inesperado: {e}", "danger")
+
     return redirect(url_for("dashboard"))
 
 # Rota para o formulário de chamados
