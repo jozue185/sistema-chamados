@@ -48,19 +48,21 @@ def login():
 @app.route("/dashboard")
 def dashboard():
     try:
+        # Verificar se o usuário está logado
         if "user" not in session:
             flash("Você precisa fazer login para acessar esta página.", "danger")
             return redirect(url_for("login"))
 
+        # Verificar se o usuário é administrador
         if not session.get("is_admin", False):
             flash("Acesso negado. Apenas administradores podem acessar o dashboard.", "danger")
             return redirect(url_for("form"))
 
-        # Buscar dados do banco de dados
+        # Conectar ao banco e buscar dados
         conn = sqlite3.connect("data.db")
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM chamados")
-        data = cursor.fetchall()  # Lista de tuplas com os chamados
+        data = cursor.fetchall()
         conn.close()
 
         # Categorizar os pedidos
@@ -76,10 +78,9 @@ def dashboard():
             completed_count=completed
         )
     except Exception as e:
-        print(f"Erro no dashboard: {e}")
-        flash("Erro ao carregar os dados do banco.", "danger")
+        print(f"Erro ao carregar o dashboard: {e}")
+        flash("Erro ao carregar os dados do dashboard.", "danger")
         return redirect(url_for("form"))
-
 
 #Deletar Pedido
 @app.route("/update-status", methods=["POST"])
@@ -139,19 +140,7 @@ def form():
 
     return render_template("form.html", user_name=user_name)
 
-import unicodedata
-
-def remover_acentos(texto):
-    """
-    Remove acentos e caracteres especiais de uma string.
-    """
-    if not isinstance(texto, str):
-        return texto
-    return ''.join(
-        c for c in unicodedata.normalize('NFD', texto)
-        if unicodedata.category(c) != 'Mn'
-    )
-#Enviar o Email
+# Rota para processar o envio do formulário
 @app.route("/send-email", methods=["POST"])
 def send_email():
     try:
@@ -166,19 +155,23 @@ def send_email():
         # Salvar os dados no banco de dados
         conn = sqlite3.connect("data.db")
         cursor = conn.cursor()
+
+        # Inserir os dados na tabela 'chamados'
         cursor.execute("""
         INSERT INTO chamados (nome, departamento, email, descricao, urgencia, data, status)
         VALUES (?, ?, ?, ?, ?, ?, ?)
         """, (nome, department, email, description, urgency, delivery_date, "Não Iniciado"))
-        conn.commit()
+        conn.commit()  # IMPORTANTE: Confirma as alterações no banco
         conn.close()
 
-        flash("Solicitação enviada com sucesso e salva no banco de dados!", "success")
+        # Mensagem de sucesso e redirecionamento
+        flash("Solicitação enviada com sucesso!", "success")
         return redirect(url_for("form"))
     except Exception as e:
-        print(f"Erro ao processar a solicitação: {e}")
-        flash("Erro ao salvar os dados no banco de dados.", "danger")
+        print(f"Erro ao processar o formulário: {e}")
+        flash("Erro ao salvar os dados no banco.", "danger")
         return redirect(url_for("form"))
+
 
 # Rota para logout
 @app.route("/logout")
